@@ -29,6 +29,10 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, world!'
 
+    @app.route('/')
+    def index():
+        return 'Welcome to flaskr!'
+
     from . import db
     db.init_app(app)
 
