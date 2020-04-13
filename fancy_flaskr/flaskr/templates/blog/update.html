@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import form_field %}
+
+{% block header %}
+<h1>{% block title %}Edit{% endblock %}</h1>
+{% endblock header %}
+
+{% block content %}
+<form method="post">
+    {{ form.csrf_token }}
+    {{ form_field(form.title) }}
+    {{ form_field(form.body) }}
+    {{ form.submit }}
+</form>
+<hr>
+<form action="{{ url_for('blog.delete', id=post.id) }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="submit" class="danger" value="Delete" onclick="return confirm('Are your sure?');">
+</form>
+{% endblock content %}

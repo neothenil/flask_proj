@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import form_field %}
+
+{% block header %}
+<h1>{% block title %}New Post{% endblock %}</h1>
+{% endblock header %}
+
+{% block content %}
+<form method="post">
+    {{ form.csrf_token }}
+    {{ form_field(form.title) }}
+    {{ form_field(form.body) }}
+    {{ form.submit }}
+</form>
+{% endblock content %}
