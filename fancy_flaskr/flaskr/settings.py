@@ -1,17 +1,20 @@
 import os
 from pathlib import Path
 
-basedir = Path(__file__).parent
-
 
 class BaseConfig:
     SECRET_KEY = os.getenv('SECRET_KEY', 'secret string')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    def __init__(self, basedir):
+        pass
+
 
 class DevelopmentConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + \
-            str(Path(basedir, 'database-dev.db').absolute())
+
+    def __init__(self, basedir):
+        self.SQLALCHEMY_DATABASE_URI = 'sqlite:///' + \
+                str(Path(basedir, 'database-dev.db').absolute())
 
 
 class TestingConfig(BaseConfig):
@@ -20,8 +23,10 @@ class TestingConfig(BaseConfig):
 
 
 class ProductionConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + \
-            str(Path(basedir, 'database.db').absolute())
+
+    def __init__(self, basedir):
+        self.SQLALCHEMY_DATABASE_URI = 'sqlite:///' + \
+                str(Path(basedir, 'database.db').absolute())
 
 
 config = {
