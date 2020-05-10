@@ -18,6 +18,7 @@ def create_app():
 
     register_extensions(app)
     register_blueprints(app)
+    register_rules(app)
     register_commands(app)
 
     return app
@@ -35,6 +36,10 @@ def register_blueprints(app):
     app.register_blueprint(blog_bp)
 
 
+def register_rules(app):
+    app.add_url_rule('/', 'blog.index')
+
+
 def register_commands(app):
     @app.cli.command('create-db', help='Create database.')
     @click.option('-f', '--force',
@@ -42,6 +47,7 @@ def register_commands(app):
     def create_db(force):
         if force:
             db.drop_all()
+            click.echo('old database dropped.')
         db.create_all()
         click.echo('database created.')
 
