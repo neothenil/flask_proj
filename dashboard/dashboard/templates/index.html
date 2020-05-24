@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import page_name, message_card, show_task %}
+
+{% block title %}Dashboard - Status{% endblock title %}
+
+{% block content %}
+<div id="content">
+    <div class="container-fluid">
+        {{ page_name('Status') }}
+        {% for msg in get_flashed_messages() %}
+        {{ message_card(msg) }}
+        {% endfor %}
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="text-primary font-weight-bold m-0">LOCUST</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if locust_tasks %}
+                        {% for task in locust_tasks %}
+                            {{ show_task(task) }}
+                        {% endfor %}
+                        {% else %}
+                        <h4 class="small font-weight-bold">Empty task. <a href="{{ url_for('task.submit') }}">Submit Now!</a></h4>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="text-primary font-weight-bold m-0">SPARK</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if spark_tasks %}
+                        {% for task in spark_tasks %}
+                            {{ show_task(task) }}
+                        {% endfor %}
+                        {% else %}
+                        <h4 class="small font-weight-bold">Empty task. <a href="{{ url_for('task.submit') }}">Submit Now!</a></h4>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

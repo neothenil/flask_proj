@@ -1,0 +1,75 @@
+{% macro pagename(name) %}
+<div class="d-sm-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-dark mb-0">{{ name }}</h3>
+</div>
+{% endmacro %}
+
+{% macro message_card(msg) %}
+<div class="card shadow border-left-info py-2 message">
+    <div class="card-body message-body">
+        <div class="row align-items-center no-gutters">
+            <div class="col mr-2">
+                <div class="text-dark h6 mb-0"><span>{{ msg }}</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro show_task(task) %}
+<h4 class="small font-weight-bold">{{ task.name }}<span class="float-right">{{ task.progress }}%&nbsp;
+{% if task.status == 'PENDING' or task.status == 'STARTED' %}
+<a href="#" data-toggle="modal" data-target="#cancel-task-{{ task.id }}">Cancel</a>
+{% else %}
+<a href="{{ url_for('task.download', task_id=task.id) }}">Download</a>&nbsp;<a href="{{ url_for('task.delete', task_id=task.id) }}">Delete</a>
+{% endif %}</span></h4>
+{% if task.progress <= 20 %}
+{% set color = 'danger' %}
+{% elif task.progress <= 40 %}
+{% set color = 'warning' %}
+{% elif task.progress <= 60 %}
+{% set color = 'primary' %}
+{% elif task.progress <= 80 %}
+{% set color = 'info' %}
+{% else %}
+{% set color = 'success' %}
+{% endif %}
+<div class="progress mb-4">
+    <div class="progress-bar bg-{{ color }}" aria-valuenow="{{ task.progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ task.progress }}%;"></div>
+</div>
+{% if task.status == 'PENDING' or task.status == 'STARTED' %}
+<div class="modal fade" role="dialog" tabindex="-1" id="cancel-task-{{ task.id }}">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cancel Task</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+            <div class="modal-body">
+                <p>Please input the task name `{{ task.name }}` to confirm you really want to cancel this task.</p><input type="text" placeholder="Task Name" style="width: 50%;"></div>
+            <div class="modal-footer"><button class="btn btn-light" type="button" data-dismiss="modal">Close</button><a class="btn btn-danger" type="button" href="{{ url_for('task.cancel', task_id=task.id) }}">Confirm</a></div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro form_field(field) %}
+<div class="form-group">
+    {{ field(**kwargs) }}
+    {% if field.errors %}
+    {% for error in field.errors %}
+        <small class="danger">{{ error }}</small>
+    {% endfor %}
+    {% endif %}
+</div>
+{% endmacro %}
+
+{% macro form_checkbox(field) %}
+<div class="form-group">
+    <div class="custom-control custom-checkbox small">
+        <div class="form-check">
+            {{ field(class_='form-check-input custom-control-input') }}
+            {{ field.label(class_='form-check-label custom-control-label') }}
+        </div>
+    </div>
+</div>
+{% endmacro %}

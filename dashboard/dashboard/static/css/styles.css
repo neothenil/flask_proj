@@ -1,0 +1,23 @@
+.d-sm-flex.justify-content-between.align-items-center.mb-4 {
+    margin-top:20px;
+}
+
+.sidebar .nav-item .nav-link {
+    font-size: 1rem;
+}
+
+.message {
+    padding: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.message .message-body {
+    padding: 5px;
+    margin: 0px;
+}
+
+small.danger {
+    padding-left: 1rem;
+    color: red;
+}
