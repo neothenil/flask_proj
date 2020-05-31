@@ -1,11 +1,17 @@
-from flask import Blueprint
+from flask import Blueprint, render_template, flash, redirect, url_for
+
+from ..forms import TaskForm
 
 task_bp = Blueprint('task', __name__, url_prefix='/task')
 
 
 @task_bp.route('/submit', methods=['GET', 'POST'])
 def submit():
-    return 'submit page'
+    form = TaskForm()
+    if form.validate_on_submit():
+        flash('Submit task successfully!')
+        return redirect(url_for('index'))
+    return render_template('submit.html', form=form)
 
 
 @task_bp.route('/<int:task_id>/download', methods=['GET'])
