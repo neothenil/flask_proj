@@ -3,6 +3,7 @@ from pathlib import Path
 
 
 class BaseConfig:
+    # Set 'SECRET_KEY' to a random string in env in production.
     SECRET_KEY = os.getenv('SECRET_KEY', 'secret string')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

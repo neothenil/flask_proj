@@ -1,4 +1,4 @@
-{% macro pagename(name) %}
+{% macro page_name(name) %}
 <div class="d-sm-flex justify-content-between align-items-center mb-4">
     <h3 class="text-dark mb-0">{{ name }}</h3>
 </div>
@@ -17,7 +17,12 @@
 {% endmacro %}
 
 {% macro show_task(task) %}
-<h4 class="small font-weight-bold">{{ task.name }}<span class="float-right">{{ task.progress }}%&nbsp;
+<h4 class="small font-weight-bold">{{ task.name }}<span class="float-right">
+{% if task.status != 'FAILURE' %}
+{{ task.progress }}%
+{% else %}
+Failed
+{% endif %}&nbsp;
 {% if task.status == 'PENDING' or task.status == 'STARTED' %}
 <a href="#" data-toggle="modal" data-target="#cancel-task-{{ task.id }}">Cancel</a>
 {% else %}
@@ -38,17 +43,24 @@
     <div class="progress-bar bg-{{ color }}" aria-valuenow="{{ task.progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ task.progress }}%;"></div>
 </div>
 {% if task.status == 'PENDING' or task.status == 'STARTED' %}
-<div class="modal fade" role="dialog" tabindex="-1" id="cancel-task-{{ task.id }}">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Cancel Task</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-            <div class="modal-body">
-                <p>Please input the task name `{{ task.name }}` to confirm you really want to cancel this task.</p><input type="text" placeholder="Task Name" style="width: 50%;"></div>
-            <div class="modal-footer"><button class="btn btn-light" type="button" data-dismiss="modal">Close</button><a class="btn btn-danger" type="button" href="{{ url_for('task.cancel', task_id=task.id) }}">Confirm</a></div>
+<form action="{{ url_for('task.cancel', task_id=task.id) }}" method="POST">
+    <div class="modal fade" role="dialog" tabindex="-1" id="cancel-task-{{ task.id }}">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Cancel Task</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                <div class="modal-body">
+                    <p>Please input the task name `{{ task.name }}` to confirm you really want to cancel this task.</p>
+                    <input type="text" placeholder="Task Name" style="width: 50%;">
+                </div>
+                <div class="modal-footer">
+                <button class="btn btn-light" type="button" data-dismiss="modal">Close</button>
+                <input class="btn btn-danger" type="submit" value="Confirm"/>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</form>
 {% endif %}
 {% endmacro %}
 
