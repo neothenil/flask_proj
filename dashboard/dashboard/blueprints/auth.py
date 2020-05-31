@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, url_for, render_template, flash
 
-from ..forms import RegisterForm
+from ..forms import RegisterForm, LoginForm
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -16,7 +16,11 @@ def register():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    return 'login page'
+    form = LoginForm()
+    if form.validate_on_submit():
+        flash('Welcome to Task Dashboard!')
+        return redirect(url_for('index'))
+    return render_template('auth/login.html', form=form)
 
 
 @auth_bp.route('/logout')
