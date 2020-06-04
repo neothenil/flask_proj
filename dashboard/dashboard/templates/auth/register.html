@@ -3,6 +3,8 @@
 
 {% block title %}Register{% endblock title %}
 
+{% block img %}{{ url_for('static', filename='img/dogs/image2.jpeg') }}{% endblock img %}
+
 {% block form_content %}
 <form class="user" action="{{ url_for('auth.register') }}" method="POST">
     {{ form.csrf_token }}

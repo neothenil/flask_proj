@@ -11,6 +11,8 @@ celery = {extras = ["redis"], version = "^4.4.2"}
 python-dotenv = "^0.13.0"
 flask-sqlalchemy = "^2.4.1"
 flask_wtf = "^0.14.3"
+flask_login = "^0.5.0"
+flask_migrate = "^2.5.3"
 
 [tool.poetry.dev-dependencies]
 faker = "^4.1.0"
