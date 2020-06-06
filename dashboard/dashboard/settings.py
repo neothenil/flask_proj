@@ -9,6 +9,11 @@ class BaseConfig:
     SECRET_KEY = os.getenv("SECRET_KEY", "secret string")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     REMEMBER_COOKIE_DURATION = timedelta(15)
+    CELERY_RESULT_BACKEND = os.getenv(
+        "CELERY_RESULT_BACKEND", "redis://localhost"
+    )
+    CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "amqp://localhost")
+    POLL_INTERVAL = 0.01
 
     def __init__(self, basedir):
         pass

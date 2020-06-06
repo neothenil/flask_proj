@@ -1,6 +1,6 @@
 import os
-from random import randint
 import click
+from random import randint
 from flask import Flask, render_template
 from flask_login import login_required
 
