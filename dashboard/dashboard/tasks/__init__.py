@@ -8,7 +8,6 @@ from ..settings import config
 def create_celery():
     dotenv.load_dotenv(dotenv_path=".flaskenv")
     config_name = os.getenv("FLASK_ENV", "development")
-    print(config_name)
     config_obj = config[config_name](".")
     celery = Celery(
         __name__,

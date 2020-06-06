@@ -1,6 +1,8 @@
 import uuid
+import psutil
 from pathlib import Path
 from flask import (
+    request,
     abort,
     Blueprint,
     render_template,
@@ -8,6 +10,7 @@ from flask import (
     redirect,
     url_for,
     current_app,
+    send_file,
 )
 from flask_login import login_required, current_user
 
@@ -34,7 +37,7 @@ def submit():
         task.user = current_user._get_current_object()
         db.session.add(task)
         ab.session.commit()
-        flash("Submit task successfully!")
+        flash(f"Task <{task.name}> has been submitted successfully!")
         return redirect(url_for("index"))
     return render_template("submit.html", form=form)
 
@@ -58,6 +61,27 @@ def start_task(type, name, id):
     return task
 
 
+def update_tasks(tasks):
+    for task in tasks:
+        if task.status == "SUCCESS" or task.status == "FAILURE":
+            continue
+        type = task.type
+        id = task.id
+        if type == "LOCUST":
+            task_obj = run_locust
+        elif type == "SPARK":
+            task_obj = run_spark
+        result = task_obj.AsyncResult(id)
+        info = result.info
+        task.status = info["status"]
+        task.process = int(info["success"] / info["total"] * 100.0)
+        if task.status == "SUCCESS" or task.status == "FAILURE":
+            task.pid = None
+            result.forget()
+        db.session.add(task)
+    db.session.commit()
+
+
 @task_bp.route("/<task_id>/download", methods=["GET"])
 @login_required
 def download(task_id):
@@ -68,16 +92,53 @@ def download(task_id):
     path = Path(download_dir, task_id + ".zip")
     if not path.exists():
         abort(404)
-    return "download page"
+    return send_file(path)
 
 
-@task_bp.route("/<task_id>/delete", methods=["GET"])
+@task_bp.route("/<task_id>/delete", methods=["POST"])
 @login_required
 def delete(task_id):
-    return "delete page"
+    task = Task.query.get_or_404(task_id)
+    if request.form["taskname"] != task.name:
+        flash(f"Wrong task name detected!")
+        return redirect(url_for("index"))
+    if task.status != "SUCCESS" and task.status != "FAILURE":
+        abort(404)
+    upload_dir = current_app.config[task.type + "_UPLOAD_DIR"]
+    # run_dir should be deleted after execution by task
+    download_dir = current_app.config[task.type + "_DOWNLOAD_DIR"]
+    upload_path = Path(upload_dir, task_id + ".zip")
+    download_path = Path(download_dir, task_id + ".zip")
+    upload_path.unlink(missing_ok=True)
+    download_path.unlink(missing_ok=True)
+    db.session.delete(task)
+    db.session.commit()
+    flash(f"Task <{task.name}> deleted!")
+    return redirect(url_for("index"))
 
 
 @task_bp.route("/<task_id>/cancel", methods=["POST"])
 @login_required
 def cancel(task_id):
-    return "cancel page"
+    task = Task.query.get_or_404(task_id)
+    if request.form["taskname"] != task.name:
+        flash(f"Wrong task name detected!")
+        return redirect(url_for("index"))
+    if task.status == "SUCCESS" or task.status == "FAILURE":
+        abort(404)
+    if task.type == "LOCUST":
+        task_obj = run_locust
+    elif task.type == "SPARK":
+        task_obj = run_spark
+    task_result = task_obj.AsyncResult(task.id)
+    proc = psutil.Process(task.pid)
+    chidren = proc.chidren(recursive=True)
+    task_result.revoke(terminate=True)
+    for child in children:
+        child.terminate()
+    task.status = "FAILURE"
+    task.pid = None
+    db.session.add(task)
+    db.session.commit()
+    flash(f"Task <{task.name}> has been cancelled!")
+    return redirect(url_for("index"))

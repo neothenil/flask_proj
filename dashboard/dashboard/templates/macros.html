@@ -26,7 +26,7 @@ Failed
 {% if task.status == 'PENDING' or task.status == 'STARTED' %}
 <a href="#" data-toggle="modal" data-target="#cancel-task-{{ task.id }}">Cancel</a>
 {% else %}
-<a href="{{ url_for('task.download', task_id=task.id) }}">Download</a>&nbsp;<a href="{{ url_for('task.delete', task_id=task.id) }}">Delete</a>
+<a href="{{ url_for('task.download', task_id=task.id) }}">Download</a>&nbsp;<a href="#" data-toggle="modal" data-target="#delete-task-{{ task.id }}">Delete</a>
 {% endif %}</span></h4>
 {% if task.progress <= 20 %}
 {% set color = 'danger' %}
@@ -50,8 +50,29 @@ Failed
                 <div class="modal-header">
                     <h4 class="modal-title">Cancel Task</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
                 <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <p>Please input the task name `{{ task.name }}` to confirm you really want to cancel this task.</p>
-                    <input type="text" placeholder="Task Name" style="width: 50%;">
+                    <input type="text" name="taskname" placeholder="Task Name" style="width: 50%;">
+                </div>
+                <div class="modal-footer">
+                <button class="btn btn-light" type="button" data-dismiss="modal">Close</button>
+                <input class="btn btn-danger" type="submit" value="Confirm"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% else %}
+<form action="{{ url_for('task.delete', task_id=task.id) }}" method="POST">
+    <div class="modal fade" role="dialog" tabindex="-1" id="delete-task-{{ task.id }}">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete Task</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <p>Please input the task name `{{ task.name }}` to confirm you really want to delete this task.</p>
+                    <input type="text" name="taskname" placeholder="Task Name" style="width: 50%;">
                 </div>
                 <div class="modal-footer">
                 <button class="btn btn-light" type="button" data-dismiss="modal">Close</button>
