@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+import os
+import sys
+from pathlib import Path
+
+input_file = Path(sys.argv[1])
+contentt = input_file.read_text()
+basename = os.path.splitext(input_file.name)[0]
+out_cax = Path(basename + '.cax')
+out_form = Path(basename + '.form')
+out_kine = Path(basename + '.kine')
+out_xs = Path(basename + '.xs')
+out_out = Path(basename + '.out')
+out_cax.write_text(f'cax output of {basename}\n')
+out_form.write_text(f'form output of {basename}\n')
+out_kine.write_text(f'kine output of {basename}\n')
+out_xs.write_text(f'xs output of {basename}\n')
+out_out.write_text(f'some output of {basename}\n')

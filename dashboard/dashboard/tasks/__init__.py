@@ -9,8 +9,8 @@ from ..settings import config
 def create_celery():
     dotenv.load_dotenv(dotenv_path=".flaskenv")
     config_name = os.getenv("FLASK_ENV", "development")
-    config_obj = config[config_name]("instance")
     root_path = Path(__file__).parent.parent
+    config_obj = config[config_name](Path(root_path.parent, "instance"))
     celery = Celery(
         __name__,
         backend=config_obj.CELERY_RESULT_BACKEND,
