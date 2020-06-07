@@ -2,11 +2,12 @@ import os
 import click
 from random import randint
 from flask import Flask, render_template
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from .settings import config
-from .blueprints import auth_bp, task_bp
 from .utils import fake_tasks
+from .blueprints import auth_bp, task_bp
+from .blueprints.task import update_tasks
 from .extension import db, migrate, login_manager, csrf
 
 
@@ -41,8 +42,12 @@ def register_routes(app):
     @app.route("/", methods=["GET"])
     @login_required
     def index():
-        locust_tasks = fake_tasks(randint(0, 10))
-        spark_tasks = fake_tasks(randint(0, 10))
+        user = current_user._get_current_object()
+        tasks = user.tasks
+        locust_tasks = list(filter(lambda x: x.type == "LOCUST", tasks))
+        spark_tasks = list(filter(lambda x: x.type == "SPARK", tasks))
+        update_tasks(locust_tasks)
+        update_tasks(spark_tasks)
         return render_template(
             "index.html", locust_tasks=locust_tasks, spark_tasks=spark_tasks
         )

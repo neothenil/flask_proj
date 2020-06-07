@@ -86,6 +86,8 @@ def update_tasks(tasks):
 @login_required
 def download(task_id):
     task = Task.query.get_or_404(task_id)
+    if task.user.id != current_user.id:
+        abort(404)
     if task.status != "SUCCESS" and task.status != "FAILURE":
         abort(404)
     download_dir = current_app.config[task.type + "_DOWNLOAD_DIR"]
@@ -99,6 +101,8 @@ def download(task_id):
 @login_required
 def delete(task_id):
     task = Task.query.get_or_404(task_id)
+    if task.user.id != current_user.id:
+        abort(404)
     if request.form["taskname"] != task.name:
         flash(f"Wrong task name detected!")
         return redirect(url_for("index"))
@@ -121,6 +125,8 @@ def delete(task_id):
 @login_required
 def cancel(task_id):
     task = Task.query.get_or_404(task_id)
+    if task.user.id != current_user.id:
+        abort(404)
     if request.form["taskname"] != task.name:
         flash(f"Wrong task name detected!")
         return redirect(url_for("index"))

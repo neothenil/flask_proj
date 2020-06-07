@@ -97,7 +97,7 @@ class ProductionConfig(BaseConfig):
         os.makedirs(spark_download_dir, exist_ok=True)
         # Exposed configuration
         self.SQLALCHEMY_DATABASE_URI = "sqlite:///" + str(
-            Path(basedir, "database-dev.db").absolute()
+            Path(basedir, "database.db").absolute()
         )
         self.LOCUST_UPLOAD_DIR = locust_upload_dir
         self.LOCUST_RUN_DIR = locust_run_dir
