@@ -1,15 +1,63 @@
 import os
+import shutil
+from pathlib import Path
+from zipfile import ZipFile
 from concurrent.futures import ThreadPoolExecutor as TPE, as_completed
 
-from . import celery
+from . import celery, TaskExecutionError
+
+default_nworker = os.cpu_count() // 2
 
 
 @celery.task(bind=True)
-def run_locust(self, task_id):
+def run_locust(self, hint):
+    # init meta data
+    meta = {
+        "status": "PENDING",
+        "pid": os.getpid(),
+        "success": 0,
+        "total": 1,
+        "failed": [],
+    }
+    self.update_state(state="PENDING", meta=meta)
     # create workspace
+    run_dir = Path(celery.conf.LOCUST_RUN_DIR, hint)
+    run_dir.mkdir(exist_ok=True)
+    input_path = Path(celery.conf.LOCUST_UPLOAD_DIR, hint + ".zip")
+    try:
+        with ZipFile(input_path) as zipfile:
+            zipfile.extractall(path=run_dir)
+    except Exception as e:
+        meta["status"] = "FAILURE"
+        raise TaskExecutionError(meta)
     # run locust in workspace
+    cwd = os.getcwd()
+    os.chdir(run_dir)
+    workspaces = []
+    for direntry in os.scandir():
+        if direntry.is_dir():
+            workspaces.append(direntry.name)
+    meta["status"] = "STARTED"
+    meta["total"] = len(workspaces)
+    self.update_state(state="STARTED", meta=meta)
+    for info in async_execute_locust(
+        celery.conf.LOCUST_BIN, workspaces, default_nworker
+    ):
+        meta.update(info)
+        self.update_state(state="STARTED", meta=meta)
     # collect result to a zip file
-    pass
+    dl_path = Path(celery.conf.LOCUST_DOWNLOAD_DIR, hint + ".zip")
+    with ZipFile(dl_path, "w") as outfile:
+        for entry in os.listdir():
+            outfile.write(entry)
+    os.chdir(cwd)
+    shutil.rmtree(run_dir, ignore_errors=True)
+    # return when succeed, or raise exception when fail.
+    if len(meta["failed"]) != 0:
+        meta["status"] = "FAILURE"
+        raise TaskExecutionError(meta)
+    meta["status"] == "SUCCESS"
+    return meta
 
 
 def execute_locust(locust_bin, workspace):

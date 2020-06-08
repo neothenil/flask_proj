@@ -6,11 +6,17 @@ from celery import Celery
 from ..settings import config
 
 
+class TaskExecutionError(RuntimeError):
+    """Raised when task failed to execute."""
+
+
 def create_celery():
     dotenv.load_dotenv(dotenv_path=".flaskenv")
     config_name = os.getenv("FLASK_ENV", "development")
     root_path = Path(__file__).parent.parent
-    config_obj = config[config_name](Path(root_path.parent, "instance"))
+    config_obj = config[config_name](
+        Path(root_path.parent, "instance").resolve()
+    )
     celery = Celery(
         __name__,
         backend=config_obj.CELERY_RESULT_BACKEND,
