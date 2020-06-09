@@ -53,10 +53,9 @@ def start_task(type, name, id):
     while result.info is None:
         time.sleep(current_app.config["POLL_INTERVAL"])
     info = result.info
-    status = info["status"]
+    status = "PENDING"
     pid = info["pid"]
     progress = int(info["success"] / info["total"] * 100.0)
-    print(progress)
     task = Task(
         id=id, name=name, type=type, status=status, pid=pid, progress=progress
     )
@@ -132,6 +131,7 @@ def cancel(task_id):
     if request.form["taskname"] != task.name:
         flash(f"Wrong task name detected!")
         return redirect(url_for("index"))
+    update_tasks([task])
     if task.status == "SUCCESS" or task.status == "FAILURE":
         abort(404)
     if task.type == "LOCUST":
