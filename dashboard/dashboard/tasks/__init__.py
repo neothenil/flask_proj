@@ -34,4 +34,3 @@ celery = create_celery()
 
 from .locust import run_locust
 from .spark import run_spark
-from .demo import add

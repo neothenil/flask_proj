@@ -28,7 +28,7 @@ class Task(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(30))
     pid = db.Column(db.Integer)
-    process = db.Column(db.Integer)
+    progress = db.Column(db.Integer, nullable=False, default=0)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = db.relationship("User", back_populates="tasks")

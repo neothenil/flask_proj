@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 from pathlib import Path
 from zipfile import ZipFile
 from concurrent.futures import ThreadPoolExecutor as TPE, as_completed
@@ -29,7 +30,7 @@ def run_locust(self, hint):
             zipfile.extractall(path=run_dir)
     except Exception as e:
         meta["status"] = "FAILURE"
-        raise TaskExecutionError(meta)
+        return meta
     # run locust in workspace
     cwd = os.getcwd()
     os.chdir(run_dir)
@@ -37,6 +38,9 @@ def run_locust(self, hint):
     for direntry in os.scandir():
         if direntry.is_dir():
             workspaces.append(direntry.name)
+    if not workspaces:
+        meta["status"] = "FAILURE"
+        return meta
     meta["status"] = "STARTED"
     meta["total"] = len(workspaces)
     self.update_state(state="STARTED", meta=meta)
@@ -52,11 +56,11 @@ def run_locust(self, hint):
             outfile.write(entry)
     os.chdir(cwd)
     shutil.rmtree(run_dir, ignore_errors=True)
-    # return when succeed, or raise exception when fail.
+    # return final status
     if len(meta["failed"]) != 0:
         meta["status"] = "FAILURE"
-        raise TaskExecutionError(meta)
-    meta["status"] == "SUCCESS"
+    else:
+        meta["status"] == "SUCCESS"
     return meta
 
 

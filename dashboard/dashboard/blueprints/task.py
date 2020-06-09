@@ -1,3 +1,4 @@
+import time
 import uuid
 import psutil
 from pathlib import Path
@@ -36,17 +37,17 @@ def submit():
         task = start_task(type, name, id)
         task.user = current_user._get_current_object()
         db.session.add(task)
-        ab.session.commit()
-        flash(f"Task <{task.name}> has been submitted successfully!")
+        db.session.commit()
+        flash(f'Task "{task.name}" has been submitted successfully!')
         return redirect(url_for("index"))
     return render_template("submit.html", form=form)
 
 
 def start_task(type, name, id):
     if type == "LOCUST":
-        result = run_locust.apply_async(id, task_id=id)
+        result = run_locust.apply_async(args=(id,), task_id=id)
     elif type == "SPARK":
-        result = run_spark.apply_async(id, task_id=id)
+        result = run_spark.apply_async(args=(id,), task_id=id)
     else:
         abort(500)
     while result.info is None:
@@ -54,9 +55,10 @@ def start_task(type, name, id):
     info = result.info
     status = info["status"]
     pid = info["pid"]
-    process = int(info["success"] / info["total"] * 100.0)
+    progress = int(info["success"] / info["total"] * 100.0)
+    print(progress)
     task = Task(
-        id=id, name=name, type=type, status=status, pid=pid, process=process
+        id=id, name=name, type=type, status=status, pid=pid, progress=progress
     )
     return task
 
@@ -74,7 +76,7 @@ def update_tasks(tasks):
         result = task_obj.AsyncResult(id)
         info = result.info
         task.status = info["status"]
-        task.process = int(info["success"] / info["total"] * 100.0)
+        task.progress = int(info["success"] / info["total"] * 100.0)
         if task.status == "SUCCESS" or task.status == "FAILURE":
             task.pid = None
             result.forget()
@@ -117,7 +119,7 @@ def delete(task_id):
     download_path.unlink(missing_ok=True)
     db.session.delete(task)
     db.session.commit()
-    flash(f"Task <{task.name}> deleted!")
+    flash(f'Task "{task.name}" deleted!')
     return redirect(url_for("index"))
 
 
@@ -146,5 +148,5 @@ def cancel(task_id):
     task.pid = None
     db.session.add(task)
     db.session.commit()
-    flash(f"Task <{task.name}> has been cancelled!")
+    flash(f'Task "{task.name}" has been cancelled!')
     return redirect(url_for("index"))

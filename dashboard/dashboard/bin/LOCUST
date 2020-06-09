@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 import os
 import sys
+import time
+from random import randint
 from pathlib import Path
 
 input_file = Path(sys.argv[1])
 contentt = input_file.read_text()
+time.sleep(randint(10, 60))
 basename = os.path.splitext(input_file.name)[0]
 out_cax = Path(basename + '.cax')
 out_form = Path(basename + '.form')
