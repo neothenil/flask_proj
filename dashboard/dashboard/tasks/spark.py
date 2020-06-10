@@ -5,6 +5,7 @@ from pathlib import Path
 from zipfile import ZipFile
 
 from . import celery, TaskExecutionError
+from .utils import compress
 
 
 @celery.task(bind=True)
@@ -54,14 +55,12 @@ def run_spark(self, hint):
             self.update_state(state="STARTED", meta=meta)
     # collect result to a zip file
     dl_path = Path(celery.conf.SPARK_DOWNLOAD_DIR, hint + ".zip")
-    with ZipFile(dl_path, "w") as outfile:
-        for entry in os.listdir():
-            outfile.write(entry)
+    zipfile = compress(dl_path, ".")
     os.chdir(cwd)
     shutil.rmtree(run_dir, ignore_errors=True)
     # return final status
     if len(meta["failed"]) != 0:
         meta["status"] = "FAILURE"
     else:
-        meta["status"] == "SUCCESS"
+        meta["status"] = "SUCCESS"
     return meta

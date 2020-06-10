@@ -6,6 +6,7 @@ from zipfile import ZipFile
 from concurrent.futures import ThreadPoolExecutor as TPE, as_completed
 
 from . import celery, TaskExecutionError
+from .utils import compress
 
 default_nworker = os.cpu_count() // 2
 
@@ -51,16 +52,14 @@ def run_locust(self, hint):
         self.update_state(state="STARTED", meta=meta)
     # collect result to a zip file
     dl_path = Path(celery.conf.LOCUST_DOWNLOAD_DIR, hint + ".zip")
-    with ZipFile(dl_path, "w") as outfile:
-        for entry in os.listdir():
-            outfile.write(entry)
+    zipfile = compress(dl_path, ".")
     os.chdir(cwd)
     shutil.rmtree(run_dir, ignore_errors=True)
     # return final status
     if len(meta["failed"]) != 0:
         meta["status"] = "FAILURE"
     else:
-        meta["status"] == "SUCCESS"
+        meta["status"] = "SUCCESS"
     return meta
 
 

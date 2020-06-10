@@ -1,5 +1,6 @@
 import time
 import uuid
+import shutil
 import psutil
 from pathlib import Path
 from flask import (
@@ -95,7 +96,9 @@ def download(task_id):
     path = Path(download_dir, task_id + ".zip")
     if not path.exists():
         abort(404)
-    return send_file(path)
+    return send_file(
+        path, as_attachment=True, attachment_filename=task.name + ".zip"
+    )
 
 
 @task_bp.route("/<task_id>/delete", methods=["POST"])
@@ -110,12 +113,15 @@ def delete(task_id):
     if task.status != "SUCCESS" and task.status != "FAILURE":
         abort(404)
     upload_dir = current_app.config[task.type + "_UPLOAD_DIR"]
-    # run_dir should be deleted after execution by task
+    run_dir = current_app.config[task.type + "_RUN_DIR"]
     download_dir = current_app.config[task.type + "_DOWNLOAD_DIR"]
     upload_path = Path(upload_dir, task_id + ".zip")
+    run_path = Path(run_dir, task_id)
     download_path = Path(download_dir, task_id + ".zip")
     upload_path.unlink(missing_ok=True)
     download_path.unlink(missing_ok=True)
+    if run_path.exists():
+        shutil.rmtree(run_path, ignore_errors=True)
     db.session.delete(task)
     db.session.commit()
     flash(f'Task "{task.name}" deleted!')
@@ -140,7 +146,7 @@ def cancel(task_id):
         task_obj = run_spark
     task_result = task_obj.AsyncResult(task.id)
     proc = psutil.Process(task.pid)
-    chidren = proc.chidren(recursive=True)
+    children = proc.children(recursive=True)
     task_result.revoke(terminate=True)
     for child in children:
         child.terminate()
