@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from zipfile import ZipFile
 
-from . import celery, TaskExecutionError
+from . import celery
 from .utils import compress
 
 

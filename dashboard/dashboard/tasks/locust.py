@@ -5,7 +5,7 @@ from pathlib import Path
 from zipfile import ZipFile
 from concurrent.futures import ThreadPoolExecutor as TPE, as_completed
 
-from . import celery, TaskExecutionError
+from . import celery
 from .utils import compress
 
 default_nworker = os.cpu_count() // 2
