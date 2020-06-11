@@ -6,8 +6,9 @@ from pathlib import Path
 from random import randint
 
 input_file = Path('spark.inp')
-contentt = input_file.read_text()
-time.sleep(randint(10, 60))
+content = input_file.read_text()
+if len(content) > 0: raise RuntimeError
+time.sleep(randint(10, 50))
 out_file = Path('spark.out')
 out_crtc = Path('spark.crtc')
 out_file.write_text('some output of spark')

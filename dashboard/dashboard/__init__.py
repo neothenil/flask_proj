@@ -9,6 +9,7 @@ from .utils import fake_tasks
 from .blueprints import auth_bp, task_bp
 from .blueprints.task import update_tasks
 from .extension import db, migrate, login_manager, csrf
+from .models import Task
 
 
 def create_app():
@@ -42,10 +43,16 @@ def register_routes(app):
     @app.route("/", methods=["GET"])
     @login_required
     def index():
-        user = current_user._get_current_object()
-        tasks = user.tasks
-        locust_tasks = list(filter(lambda x: x.type == "LOCUST", tasks))
-        spark_tasks = list(filter(lambda x: x.type == "SPARK", tasks))
+        locust_tasks = (
+            Task.query.filter_by(user_id=current_user.id, type="LOCUST")
+            .order_by(Task.timestamp.desc())
+            .all()
+        )
+        spark_tasks = (
+            Task.query.filter_by(user_id=current_user.id, type="SPARK")
+            .order_by(Task.timestamp.desc())
+            .all()
+        )
         update_tasks(locust_tasks)
         update_tasks(spark_tasks)
         return render_template(
