@@ -80,7 +80,7 @@ def async_execute_locust(locust_bin, workspaces, nworker):
     total = len(workspaces)
     worker_num = min(total, nworker, os.cpu_count())
     if worker_num <= 0:
-        return
+        worker_num = 1
     info = {"total": total, "success": 0, "failed": []}
     with TPE(max_workers=worker_num) as executor:
         futures = {
