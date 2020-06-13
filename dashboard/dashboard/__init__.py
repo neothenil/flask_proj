@@ -1,7 +1,8 @@
 import os
 import click
 from random import randint
-from flask import Flask, render_template
+from pathlib import Path
+from flask import Flask, render_template, request, abort, send_from_directory
 from flask_login import login_required, current_user
 
 from .settings import config
@@ -56,6 +57,44 @@ def register_routes(app):
         update_tasks(spark_tasks)
         return render_template(
             "index.html", locust_tasks=locust_tasks, spark_tasks=spark_tasks
+        )
+
+    @app.route("/help", methods=["GET"])
+    def help():
+        locust_demo_dir = Path(app.static_folder, "demo", "locust")
+        spark_demo_dir = Path(app.static_folder, "demo", "spark")
+        locust_zipfiles = filter(
+            lambda x: x.endswith(".zip"), os.listdir(locust_demo_dir)
+        )
+        spark_zipfiles = filter(
+            lambda x: x.endswith(".zip"), os.listdir(spark_demo_dir)
+        )
+        locust_zipfiles = list(
+            map(lambda x: os.path.splitext(x)[0], locust_zipfiles)
+        )
+        spark_zipfiles = list(
+            map(lambda x: os.path.splitext(x)[0], spark_zipfiles)
+        )
+        return render_template(
+            "help.html",
+            locust_zipfiles=locust_zipfiles,
+            spark_zipfiles=spark_zipfiles,
+        )
+
+    @app.route("/help/demo", methods=["GET"])
+    def demo():
+        type = request.args.get("type")
+        if type is None:
+            abort(404)
+        filename = request.args.get("filename")
+        if filename is None:
+            abort(404)
+        demo_dir = Path(app.static_folder, "demo", type)
+        demo = Path(demo_dir, filename)
+        if not demo.exists():
+            abort(404)
+        return send_from_directory(
+            demo_dir, filename, as_attachment=True, attachment_filename=filename
         )
 
 

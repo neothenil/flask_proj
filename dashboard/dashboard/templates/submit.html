@@ -14,10 +14,14 @@
             <div class="col-lg-6 mb-4">
                 <form action="{{ url_for('task.submit') }}" method="POST" enctype="multipart/form-data">
                     {{ form.csrf_token }}
+                    {{ form.type.label }}
                     {{ form_field(form.type, class_='form-control form-control-user', placeholder='Select task type...') }}
+                    {{ form.name.label }}
                     {{ form_field(form.name, class_='form-control form-control-user', placeholder='Task Name')}}
+                    {{ form.zipfile.label }}
                     {{ form_field(form.zipfile, class_='form-control form-control-user',
                     placeholder='Upload the essential file (zip format)') }}
+                    <p><a href="{{ url_for('help') }}">Need help?</a></p>
                     {{ form.submit(class_='btn btn-primary btn-block text-white btn-user') }}
                     <hr>
                 </form>

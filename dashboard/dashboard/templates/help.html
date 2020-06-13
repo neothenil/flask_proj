@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import page_name, message_card %}
+
+{% block title %}Dashboard - Help{% endblock title %}
+
+{% block content %}
+<div id="content">
+    <div class="container-fluid">
+        {{ page_name('Help') }}
+        {% for msg in get_flashed_messages() %}
+        {{ message_card(msg) }}
+        {% endfor %}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="text-primary m-0 font-weight-bold">Q: What is the structure of zip file for LOCUST task?</h6>
+            </div>
+            <div class="card-body">
+                <p class="m-0">A: The contents of LOCUST zip file are a collection of directories, 
+                with each containing an xml file as the input file for LOCUST. It's usually a good practice to make the 
+                directory and the xml file in it have a same basename. For example, the xml file in directory 180000 has name
+                180000.xml. Here are some LOCUST zip files for demostration: 
+                <ul>
+                {% for zipfile in locust_zipfiles %}
+                    <li><a href="{{ url_for('demo', type='locust', filename=zipfile + '.zip') }}">{{ zipfile }}</a></li>
+                {% endfor %}
+                </ul>
+                </p>
+            </div>
+        </div>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="text-primary m-0 font-weight-bold">Q: What is the structure of zip file for SPARK task?</h6>
+            </div>
+            <div class="card-body">
+                <p class="m-0">A: The contents of SPARK zip file are also a collection of directories.
+                You can put any relative files and directories to it, such as LTOS directory.
+                But what really matters is the directories containing a spark.inp file. Typically, 
+                each of these directories represents a cycle for a reactor core. And SPARK will be executed in
+                these directories in alphabetical order. Here are some SPARK zip files for demostration:
+                <ul>
+                {% for zipfile in spark_zipfiles %}
+                    <li><a href="{{ url_for('demo', type='spark', filename=zipfile + '.zip') }}">{{ zipfile }}</a></li>
+                {% endfor %}
+                </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
