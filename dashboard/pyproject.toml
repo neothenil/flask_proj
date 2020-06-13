@@ -14,6 +14,7 @@ flask_wtf = "^0.14.3"
 flask_login = "^0.5.0"
 flask_migrate = "^2.5.3"
 psutil = "^5.7.0"
+gunicorn = "^20.0.4"
 
 [tool.poetry.dev-dependencies]
 faker = "^4.1.0"

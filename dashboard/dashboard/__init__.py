@@ -5,7 +5,6 @@ from flask import Flask, render_template
 from flask_login import login_required, current_user
 
 from .settings import config
-from .utils import fake_tasks
 from .blueprints import auth_bp, task_bp
 from .blueprints.task import update_tasks
 from .extension import db, migrate, login_manager, csrf
