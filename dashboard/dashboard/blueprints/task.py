@@ -118,8 +118,8 @@ def delete(task_id):
     upload_path = Path(upload_dir, task_id + ".zip")
     run_path = Path(run_dir, task_id)
     download_path = Path(download_dir, task_id + ".zip")
-    upload_path.unlink(missing_ok=True)
-    download_path.unlink(missing_ok=True)
+    upload_path.unlink()
+    download_path.unlink()
     if run_path.exists():
         shutil.rmtree(run_path, ignore_errors=True)
     db.session.delete(task)
