@@ -6,7 +6,7 @@ authors = ["Neophyliam <727549953@qq.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-flask = "^1.1.2"
+flask = "^2.2.5"
 celery = {extras = ["redis"], version = "^4.4.2"}
 python-dotenv = "^0.13.0"
 flask-sqlalchemy = "^2.4.1"
